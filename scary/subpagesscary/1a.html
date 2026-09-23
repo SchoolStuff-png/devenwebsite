@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="internal">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #000000;
+            color: #22c55e;
+            font-family: monospace;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .stream-column {
+            position: absolute;
+            top: -100px;
+            white-space: nowrap;
+            user-select: none;
+            writing-mode: vertical-lr;
+            text-orientation: upright;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% {
+                transform: translateY(-100%);
+            }
+            100% {
+                transform: translateY(120vh);
+            }
+        }
+        a.secret-link {
+            color: #ef4444;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+        a.secret-link:hover {
+            color: #ffffff;
+            background-color: #ef4444;
+        }
+    </style>
+</head>
+<body class="relative w-screen h-screen">
+
+    <script>
+        const phrases = [
+            "apples are crunchy",
+            "bananas are yellow",
+            "fresh green apple",
+            "sweet ripe banana",
+            "apple pie slice",
+            "banana split sundae",
+            "crisp fruit basket",
+            "potassium rich banana",
+            "orchard harvested apple",
+            "Wow how are you reading this?"
+        ];
+
+        const numColumns = Math.floor(window.innerWidth / 40);
+//hey don't look through my code!//
+        for (let i = 0; i < numColumns; i++) {
+            const col = document.createElement('div');
+            col.className = 'stream-column';
+            col.style.left = `${(i / numColumns) * 100}%`;
+            col.style.animationDuration = `${Math.random() * 5 + 3}s`;
+            col.style.animationDelay = `${Math.random() * 5}s`;
+
+            // Build vertical text content
+            let textContent = "";
+            const length = Math.floor(Math.random() * 6) + 5;
+            for (let j = 0; j < length; j++) {
+                const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+                textContent += randomPhrase + " • ";
+            }
+
+            // Inject the special link into random columns
+            if (i === Math.floor(numColumns / 2)) {
+                col.innerHTML = `<span>apples</span> • <a href="1b.html" class="secret-link">1b</a> • <span>bananas</span>`;
+            } else {
+                col.innerText = textContent;
+            }
+
+            // Randomize font size slightly for variety
+            col.style.fontSize = `${Math.random() * 0.6 + 0.9}rem`;
+            col.style.opacity = Math.random() * 0.5 + 0.3;
+
+            document.body.appendChild(col);
+        }
+    </script>
+
+</body>
+</html>
