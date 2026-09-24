@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinning Sun & Fading Quotes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            overflow: hidden; /* Prevents scrollbars from the sun overflowing */
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        /* 
+         * Sun Container
+         * Anchored to the top right corner. The container itself will spin.
+         */
+        .sun-wrapper {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            width: 0;
+            height: 0; /* Center point for the rotation */
+            animation: spinContinuous 60s linear infinite; /* Smooth, continuous rotation */
+            z-index: 10;
+        }
+
+        /* The center core glow */
+        .sun-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(253,224,71,0.2) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .sun-ray {
+            position: absolute;
+            /* Center the start of the ray at the wrapper's 0,0 point */
+            top: 50%;
+            left: 50%;
+            transform-origin: 0% 50%; /* Radiate outwards from the left edge of the text box */
+            white-space: nowrap;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #facc15; /* Yellow */
+            text-shadow: 0 0 5px rgba(250, 204, 21, 0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Continuous spinning animation for the entire sun */
+        @keyframes spinContinuous {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 
+         * Quote fade animation
+         * The total cycle length will be managed by JS, but this handles the opacity and slight movement
+         */
+        @keyframes fadeQuote {
+            0% { opacity: 0; transform: translateY(20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
+        .quote-display {
+            opacity: 0; /* Default state before animation kicks in */
+        }
+        
+        .quote-animate {
+            animation: fadeQuote 8s ease-in-out forwards;
+        }
+
+        /* Bottom left positioning */
+        .quotes-wrapper {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            max-width: 50vw;
+            z-index: 20;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sun Elements -->
+    <div class="sun-wrapper" id="sunWrapper">
+        <div class="sun-core"></div>
+        <!-- Sun rays will be injected here via JS -->
+    </div>
+
+    <!-- Quotes Elements -->
+    <div class="quotes-wrapper">
+        <div id="quoteContainer" class="quote-display">
+            <h1 id="quoteText" class="text-4xl md:text-6xl font-light tracking-tight text-gray-100 leading-tight mb-6">
+                <!-- Quote text injected here -->
+            </h1>
+            <p id="quoteAuthor" class="text-xl md:text-2xl text-yellow-400 font-semibold tracking-widest uppercase">
+                <!-- Quote author injected here -->
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // ----------------------------------------------------
+        // 1. SUN GENERATION LOGIC
+        // ----------------------------------------------------
+        
+        // Expanded list of phrases combining Grapefruit and Yugoslavia
+        const sunPhrases = [
+            "Grapefruit Zest", 
+            "Josip Broz Tito", 
+            "Citrus Paradisi", 
+            "Balkan Peninsula", 
+            "Ruby Red Sweetness", 
+            "Socialist Federal Republic", 
+            "Tangy Morning Flavor", 
+            "Belgrade Capital", 
+            "Vitamin C Radiance", 
+            "Sarajevo Valleys", 
+            "Pink Grapefruit", 
+            "Adriatic Sea Breeze", 
+            "Pummelo Hybrid", 
+            "Non-Aligned Movement", 
+            "Bitter Citrus Notes", 
+            "Ljubljana Bridges", 
+            "Naringenin Antioxidants", 
+            "Skopje Architecture", 
+            "Tropical Orchard", 
+            "Zagreb Streets", 
+            "Fresh Grapefruit Juice", 
+            "Podgorica Horizons", 
+            "Citrus Groves", 
+            "Historical Borders"
+        ];
+
+        const sunWrapper = document.getElementById('sunWrapper');
+        const totalRays = sunPhrases.length;
+        const sunRadius = 120; // Distance from the center point where text begins
+
+        // Create 360-degree rays
+        sunPhrases.forEach((phrase, index) => {
+            // Calculate angle in degrees for each ray to spread evenly over 360
+            const angleInDegrees = (index / totalRays) * 360;
+            
+            const ray = document.createElement('div');
+            ray.className = 'sun-ray';
+            ray.innerText = phrase;
+
+            // Apply rotation and then translation to push it outward from the center
+            ray.style.transform = `rotate(${angleInDegrees}deg) translateX(${sunRadius}px)`;
+            
+            sunWrapper.appendChild(ray);
+        });
+
+        // ----------------------------------------------------
+        // 2. QUOTES ROTATION LOGIC
+        // ----------------------------------------------------
+        
+        const quotes = [
+            {
+                text: "The important thing is not to stop questioning. Curiosity has its own reason for existing.",
+                author: "Albert Einstein"
+            },
+            {
+                text: "If I have seen further it is by standing on the shoulders of Giants.",
+                author: "Sir Isaac Newton"
+            },
+            {
+                text: "Nothing in life is to be feared, it is only to be understood. Now is the time to understand more.",
+                author: "Marie Curie"
+            },
+            {
+                text: "Mathematics is the queen of the sciences and number theory is the queen of mathematics.",
+                author: "Carl Friedrich Gauss"
+            },
+            {
+                text: "What we know is a drop, what we don't know is an ocean.",
+                author: "Isaac Newton"
+            },
+            {
+                text: "In mathematics you don't understand things. You just get used to them.",
+                author: "John von Neumann"
+            },
+            {
+                text: "Measure what is measurable, and make measurable what is not so.",
+                author: "Galileo Galilei"
+            },
+            {
+                text: "Science and everyday life cannot and should not be separated.",
+                author: "Rosalind Franklin"
+            },
+            {
+                text: "The present is theirs; the future, for which I really worked, is mine.",
+                author: "Nikola Tesla"
+            },
+            {
+                text: "That brain of mine is something more than merely mortal; as time will show.",
+                author: "Ada Lovelace"
+            },
+            {
+                text: "We can only see a short distance ahead, but we can see plenty there that needs to be done.",
+                author: "Alan Turing"
+            },
+            {
+                text: "I would rather have questions that can't be answered than answers that can't be questioned.",
+                author: "Richard Feynman"
+            },
+            {
+                text: "My methods are really methods of working and thinking; this is why they have crept in everywhere anonymously.",
+                author: "Emmy Noether"
+            },
+            {
+                text: "Look up at the stars and not down at your feet. Try to make sense of what you see, and wonder about what makes the universe exist.",
+                author: "Stephen Hawking"
+            },
+            {
+                text: "An equation for me has no meaning, unless it expresses a thought of God.",
+                author: "Srinivasa Ramanujan"
+            },
+            {
+                text: "Truth is so obscure in these times, and falsehood so established, that, unless we love the truth, we cannot know it.",
+                author: "Blaise Pascal"
+            },
+            {
+                text: "There is no royal road to geometry.",
+                author: "Euclid"
+            }
+            
+            // ---------------------------------------------------------
+            // HOW TO ADD YOUR OWN QUOTES:
+            // ---------------------------------------------------------
+            // To add a new quote, copy the block below, uncomment it 
+            // (remove the // slashes), and fill in your text and author.
+            // Make sure to add a comma after the previous quote's closing 
+            // bracket `}` if you are adding it to the very end!
+            //
+            // ,{
+            //     text: "Your custom quote text goes right here.",
+            //     author: "Your Name or Famous Person"
+            // }
+            // ---------------------------------------------------------
+        ];
+
+        let currentQuoteIndex = 0;
+        const quoteContainer = document.getElementById('quoteContainer');
+        const quoteText = document.getElementById('quoteText');
+        const quoteAuthor = document.getElementById('quoteAuthor');
+
+        function triggerQuoteCycle() {
+            // Remove animation class to reset it
+            quoteContainer.classList.remove('quote-animate');
+            
+            // Force browser reflow to apply the removal instantly
+            void quoteContainer.offsetWidth; 
+            
+            // Update content
+            const q = quotes[currentQuoteIndex];
+            quoteText.innerText = `"${q.text}"`;
+            quoteAuthor.innerText = `— ${q.author}`;
+            
+            // Add animation class back to start fading
+            quoteContainer.classList.add('quote-animate');
+
+            // Advance index for next time
+            currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+        }
+
+        // Initialize first quote
+        triggerQuoteCycle();
+
+        // Change quote every 8 seconds (matching the CSS animation duration)
+        setInterval(triggerQuoteCycle, 8000);
+
+    </script>
+</body>
+</html>
